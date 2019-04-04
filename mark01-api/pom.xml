@@ -80,11 +80,11 @@
         </dependency>-->
 
 
-       <!-- <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.0</version>
-        </dependency>-->
+        <!-- <dependency>
+             <groupId>org.projectlombok</groupId>
+             <artifactId>lombok</artifactId>
+             <version>1.18.0</version>
+         </dependency>-->
 
         <dependency>
             <groupId>io.springfox</groupId>
@@ -110,23 +110,23 @@
         </dependency>-->
     </dependencies>
 
- <build>
-     <plugins>
-         <plugin>
-             <groupId>org.springframework.boot</groupId>
-             <artifactId>spring-boot-maven-plugin</artifactId>
-         </plugin>
-         <!--            <plugin>
-             <groupId>org.springframework.boot</groupId>
-             <artifactId>spring-boot-maven-plugin</artifactId>
-             <configuration>
-                 <includeSystemScope>true</includeSystemScope>
-             </configuration>
-         </plugin>-->
-     </plugins>
- </build>
-    
-    <pluginRepositories>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!--            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
+            </plugin>-->
+        </plugins>
+    </build>
+
+    <!--<pluginRepositories>
         <pluginRepository>
             <id>spring-snapshots</id>
             <name>Spring Snapshots</name>
@@ -143,7 +143,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </pluginRepository>
-    </pluginRepositories>
+    </pluginRepositories>-->
 
 
 </project>
