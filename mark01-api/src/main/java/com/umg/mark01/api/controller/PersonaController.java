@@ -18,6 +18,8 @@ import java.util.List;
 @Slf4j
 public class PersonaController {
 
+    private static List<Persona> listaPersonas = new ArrayList<>();
+
 
     /* -------------------------------------------------------------------------------------------------------------- */
     @RequestMapping(
@@ -25,23 +27,7 @@ public class PersonaController {
             method = RequestMethod.GET,
             produces = "application/json")
     public List<Persona> getAll() {
-        List<Persona> result = new ArrayList<>();
-
-        Persona persona = new Persona();
-        persona.setId(1);
-        persona.setPrimerNombre("Manuel");
-        persona.setSegundoNombre("Mendez");
-
-        result.add(persona);
-
-        persona = new Persona();
-        persona.setId(2);
-        persona.setPrimerNombre("Manuel");
-        persona.setSegundoNombre("Mendez");
-
-        result.add(persona);
-
-        return result;
+        return listaPersonas;
     }
 
     /* -------------------------------------------------------------------------------------------------------------- */
@@ -50,10 +36,21 @@ public class PersonaController {
             method = RequestMethod.POST)
     public ResponseEntity<?> create(
             @RequestBody Persona entityParam) {
-
-        entityParam.setSegundoNombre("desde server");
-
+        listaPersonas.add(entityParam);
         return new ResponseEntity<>(entityParam, HttpStatus.OK);
+    }
+
+    /* -------------------------------------------------------------------------------------------------------------- */
+    @RequestMapping(
+            path = "/update",
+            method = RequestMethod.PUT)
+    public ResponseEntity<?> update(
+            @RequestBody Persona entityParam) {
+
+        Persona persona = listaPersonas.get(0);
+        persona.setPrimerNombre(entityParam.getSegundoNombre());
+
+        return new ResponseEntity<>(persona, HttpStatus.OK);
     }
 
     /* -------------------------------------------------------------------------------------------------------------- */
