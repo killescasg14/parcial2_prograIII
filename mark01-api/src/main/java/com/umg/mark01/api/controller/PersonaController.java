@@ -32,6 +32,7 @@ public class PersonaController {
      * Notification emitter (emisor de notificaciones)
      */
     private EmitterProcessor<Persona> notificationProcessor;
+    // conexion a cliente de kafka
 
     /* -------------------------------------------------------------------------------------------------------------- */
     @PostConstruct
@@ -52,12 +53,14 @@ public class PersonaController {
     @RequestMapping(
             path = "/create",
             method = RequestMethod.POST)
-    public ResponseEntity<?> create(
-            @RequestBody Persona entityParam) {
+    public ResponseEntity<?> create(@RequestBody Persona entityParam) {
+
         listaPersonas.add(entityParam);
 
         // cuando se crea una nueva persona.... notificar esta accion al emisor
         System.out.println("Notificando nueva persona:" + entityParam.getPrimerNombre());
+        // 0....1........................4.3..5
+
         notificationProcessor.onNext(entityParam);
 
         return new ResponseEntity<>(entityParam, HttpStatus.OK);
@@ -104,11 +107,20 @@ public class PersonaController {
      *
      * @return
      */
+    /**
+     * un SSE siempre se compone de :
+     *  1. id
+     *  2. nombre de evento
+     *  3. dato compartido
+     * @return
+     */
     private Flux<ServerSentEvent<Persona>> getPersonaSSE() {
 
+        // SSE
         // notification processor retorna un FLUX en el cual podemos estar "suscritos" cuando este tenga otro valor ...
         return notificationProcessor
-                .log().map(
+                .log()
+                .map(
                         (persona) -> {
                             System.out.println("Sending Persona:" + persona.getId());
                             return ServerSentEvent.<Persona>builder()
@@ -116,7 +128,9 @@ public class PersonaController {
                                     .event("persona-result")
                                     .data(persona)
                                     .build();
-                        }).concatWith(Flux.never());
+                        }
+                )
+                .concatWith(Flux.never());
     }
 
     /* -------------------------------------------------------------------------------------------------------------- */
@@ -151,7 +165,27 @@ public class PersonaController {
     )
     public Flux<ServerSentEvent<Persona>> getJobResultNotification() {
 
-        return Flux.merge(getNotificationHeartbeat(), getPersonaSSE());
+        // netflix
+/*            pelicula
+                    1. video
+                    2. audio
+                    3. subtitul
+
+
+        return Flux.merge(
+                    video(seg),
+                    audio(seg),
+                    subs(seg)
+                 );*/
+
+
+        // enviar dos flujos al mismo tiempo
+        return Flux.merge(
+                getNotificationHeartbeat(),
+                getPersonaSSE()
+        );
+
+        //return  getPersonaSSE();
 
     }
     /* -------------------------------------------------------------------------------------------------------------- */
