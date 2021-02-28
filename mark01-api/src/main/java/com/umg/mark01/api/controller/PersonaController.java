@@ -42,6 +42,22 @@ public class PersonaController {
 
     /* -------------------------------------------------------------------------------------------------------------- */
     @RequestMapping(
+            value = "/dummy",
+            method = RequestMethod.GET,
+            produces = "application/json")
+    public String getDummy() {
+        return "{ \"message\":\"hola mundo\"}";
+    }
+    /* -------------------------------------------------------------------------------------------------------------- */
+    @RequestMapping(
+            path = "/add",
+            method = RequestMethod.POST)
+    public ResponseEntity<?> add(@RequestBody Persona entityParam) {
+        listaPersonas.add(entityParam);
+        return new ResponseEntity<>(entityParam, HttpStatus.OK);
+    }
+    /* -------------------------------------------------------------------------------------------------------------- */
+    @RequestMapping(
             value = "/all",
             method = RequestMethod.GET,
             produces = "application/json")
@@ -109,9 +125,10 @@ public class PersonaController {
      */
     /**
      * un SSE siempre se compone de :
-     *  1. id
-     *  2. nombre de evento
-     *  3. dato compartido
+     * 1. id
+     * 2. nombre de evento
+     * 3. dato compartido
+     *
      * @return
      */
     private Flux<ServerSentEvent<Persona>> getPersonaSSE() {
