@@ -2,7 +2,7 @@ package com.umg.mark01.api.controller;
 
 
 import com.umg.mark01.core.entities.Persona;
-import io.swagger.annotations.Api;
+//import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,22 +18,15 @@ import java.util.List;
 import java.util.UUID;
 
 
-@Api(value = "/", description = "REST Persona")
+
 @RestController
 @RequestMapping("/persona")
-@Slf4j
 public class PersonaController {
 
     private static List<Persona> listaPersonas = new ArrayList<>();
 
-
-    /* -------------------------------------------------------------------------------------------------------------- */
-    /**
-     * Notification emitter (emisor de notificaciones)
-     */
     private EmitterProcessor<Persona> notificationProcessor;
-    // conexion a cliente de kafka
-
+      //crea una instncia el postconstruct que emite el proceso
     /* -------------------------------------------------------------------------------------------------------------- */
     @PostConstruct
     private void createProcessor() {
@@ -42,7 +35,7 @@ public class PersonaController {
 
     /* -------------------------------------------------------------------------------------------------------------- */
     @RequestMapping(
-            value = "/dummy",
+            value = "/test",
             method = RequestMethod.GET,
             produces = "application/json")
     public String getDummy() {
@@ -61,83 +54,16 @@ public class PersonaController {
             value = "/all",
             method = RequestMethod.GET,
             produces = "application/json")
-    public List<Persona> getAll() {
+    public List<Persona> getAll()
+    {
         return listaPersonas;
     }
-
-    /* -------------------------------------------------------------------------------------------------------------- */
-    @RequestMapping(
-            path = "/create",
-            method = RequestMethod.POST)
-    public ResponseEntity<?> create(@RequestBody Persona entityParam) {
-
-        listaPersonas.add(entityParam);
-
-        // cuando se crea una nueva persona.... notificar esta accion al emisor
-        System.out.println("Notificando nueva persona:" + entityParam.getPrimerNombre());
-        // 0....1........................4.3..5
-
-        notificationProcessor.onNext(entityParam);
-
-        return new ResponseEntity<>(entityParam, HttpStatus.OK);
-    }
-
-    /* -------------------------------------------------------------------------------------------------------------- */
-    @RequestMapping(
-            path = "/update",
-            method = RequestMethod.PUT)
-    public ResponseEntity<?> update(
-            @RequestBody Persona entityParam) {
-
-        Persona persona = listaPersonas.get(0);
-        persona.setPrimerNombre(entityParam.getSegundoNombre());
-
-        return new ResponseEntity<>(persona, HttpStatus.OK);
-    }
-
-    /* -------------------------------------------------------------------------------------------------------------- */
-
-    @RequestMapping(
-            value = "/byId",
-            method = RequestMethod.GET,
-            produces = "application/json")
-    public Persona get(@RequestParam Integer id) {
-
-        Persona persona = new Persona();
-        persona.setId(id);
-        persona.setPrimerNombre("Manuel");
-        persona.setSegundoNombre("Mendez");
-
-        return persona;
-    }
-
-    /* -------------------------------------------------------------------------------------------------------------- */
-
-    /**
-     * Reactive functions (la respuesta hacia el cliente realmente incluye dos respuestas)
-     */
-    /* -------------------------------------------------------------------------------------------------------------- */
-
-    /**
-     * Flujo reactivo que contiene los datos de persona
-     *
-     * @return
-     */
-    /**
-     * un SSE siempre se compone de :
-     * 1. id
-     * 2. nombre de evento
-     * 3. dato compartido
-     *
-     * @return
-     */
     private Flux<ServerSentEvent<Persona>> getPersonaSSE() {
 
-        // SSE
-        // notification processor retorna un FLUX en el cual podemos estar "suscritos" cuando este tenga otro valor ...
+        // notification processor retorna un FLUX en el cual podemos estar "suscritos"
+        // cuando este tenga otro valor ...este es el pivote,
         return notificationProcessor
-                .log()
-                .map(
+                .log().map(
                         (persona) -> {
                             System.out.println("Sending Persona:" + persona.getId());
                             return ServerSentEvent.<Persona>builder()
@@ -145,18 +71,9 @@ public class PersonaController {
                                     .event("persona-result")
                                     .data(persona)
                                     .build();
-                        }
-                )
-                .concatWith(Flux.never());
+                        }).concatWith(Flux.never());//nunca termina
     }
 
-    /* -------------------------------------------------------------------------------------------------------------- */
-
-    /**
-     * Flujo reactivo que posee un "heartbeat" para que la conexión del cliente se mantenga
-     *
-     * @return
-     */
     private Flux<ServerSentEvent<Persona>> getNotificationHeartbeat() {
         return Flux.interval(Duration.ofSeconds(15))
                 .map(i -> {
@@ -168,44 +85,16 @@ public class PersonaController {
                             .build();
                 });
     }
-    /* -------------------------------------------------------------------------------------------------------------- */
-
-    /**
-     * Servicio reactivo que retorna la combinación de los dos flujos antes declarados
-     * Simplificacion de declaracion GET por "GetMapping"
-     *
-     * @return
-     */
-    /* -------------------------------------------------------------------------------------------------------------- */
     @GetMapping(
             value = "/notification/sse"
     )
-    public Flux<ServerSentEvent<Persona>> getJobResultNotification() {
-
-        // netflix
-/*            pelicula
-                    1. video
-                    2. audio
-                    3. subtitul
-
-
-        return Flux.merge(
-                    video(seg),
-                    audio(seg),
-                    subs(seg)
-                 );*/
-
-
-        // enviar dos flujos al mismo tiempo
-        return Flux.merge(
+    public Flux<ServerSentEvent<Persona>>
+        getJobResultNotification(){
+        return Flux.merge (
                 getNotificationHeartbeat(),
                 getPersonaSSE()
+
         );
-
-        //return  getPersonaSSE();
-
     }
-    /* -------------------------------------------------------------------------------------------------------------- */
-
 
 }

@@ -8,11 +8,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 
 @SpringBootApplication
-/*@EnableAutoConfiguration
-@EnableCaching*/
 @EnableSwagger2
-/*@EntityScan(basePackages = {"com.umg.mark01.core.entities"})
-@EnableJpaRepositories(basePackages = {"com.umg.mark01.api"})*/
 @ComponentScan(basePackages = {"com.umg.mark01"})
 public class Mark01APIApplication {
 
