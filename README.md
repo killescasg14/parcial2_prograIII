@@ -1,2 +1,2 @@
-# parcial2_programaIII
+# parcial2_UMG
 
